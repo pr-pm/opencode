@@ -1,0 +1,43 @@
+{
+  "name": "opencode",
+  "version": "1.0.0",
+  "description": "Meta-plugin for OpenCode that helps create, debug, and manage OpenCode plugins with AI assistance",
+  "author": "prpm",
+  "organization": "prpm",
+  "license": "MIT",
+  "repository": "https://github.com/pr-pm/opencode",
+  "tags": [
+    "opencode",
+    "plugin",
+    "meta",
+    "developer-tools",
+    "scaffolding",
+    "ai-assistant"
+  ],
+  "packages": [
+    {
+      "name": "plugin-helper",
+      "description": "Utility plugin for debugging and scaffolding OpenCode plugins",
+      "format": "opencode",
+      "subtype": "plugin",
+      "files": [".opencode/plugin/prpm-plugin-helper.ts"],
+      "tags": ["debug", "scaffold", "utility"]
+    },
+    {
+      "name": "plugin-builder-agent",
+      "description": "AI agent specialized in creating OpenCode plugins",
+      "format": "opencode",
+      "subtype": "agent",
+      "files": [".opencode/agent/plugin-builder.md"],
+      "tags": ["agent", "plugin-development", "ai"]
+    },
+    {
+      "name": "create-plugin-command",
+      "description": "Slash command to scaffold new OpenCode plugins",
+      "format": "opencode",
+      "subtype": "slash-command",
+      "files": [".opencode/command/create-plugin.md"],
+      "tags": ["command", "scaffold", "template"]
+    }
+  ]
+}
