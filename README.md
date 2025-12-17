@@ -82,9 +82,9 @@ OpenCode plugins can hook into these events:
 | **tool** | `tool.execute.before`, `tool.execute.after` |
 | **tui** | `tui.prompt.append`, `tui.command.execute`, `tui.toast.show` |
 
-## Claude Code Compatibility
+## Claude Code Event Mapping
 
-This plugin is compatible with [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode)'s Claude Code compatibility layer. The event mappings:
+When porting Claude Code hook behavior to OpenCode, use these event mappings:
 
 | Claude Hook | OpenCode Event |
 |-------------|----------------|
@@ -146,7 +146,6 @@ export const CustomToolPlugin = async (ctx) => {
 
 - [OpenCode Documentation](https://opencode.ai/docs)
 - [PRPM Registry](https://prpm.dev)
-- [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode)
 
 ## License
 
