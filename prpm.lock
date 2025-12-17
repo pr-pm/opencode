@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "lockfileVersion": 1,
+  "packages": {
+    "@prpm/prpm-json-best-practices-skill#opencode": {
+      "version": "1.2.0",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40prpm%2Fprpm-json-best-practices-skill/1.2.0.tar.gz",
+      "integrity": "sha256-13f5c9204ef0db4cd37ef2339fa9cc5743de993c73244230760e73612476d826",
+      "format": "opencode",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".openskills/prpm-json-best-practices-skill/SKILL.md",
+      "progressiveDisclosure": {
+        "mode": "progressive",
+        "resourceDir": ".openskills/prpm-json-best-practices-skill",
+        "manifestPath": "AGENTS.md",
+        "resourceName": "prpm-json-best-practices-skill",
+        "resourceType": "skill",
+        "skillsDir": ".openskills/prpm-json-best-practices-skill",
+        "skillName": "prpm-json-best-practices-skill",
+        "eager": false
+      }
+    }
+  },
+  "generated": "2025-12-17T20:10:06.278Z"
+}

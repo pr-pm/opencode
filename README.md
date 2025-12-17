@@ -1,78 +1,135 @@
-# PRPM OpenCode Meta Plugin
+# PRPM OpenCode Plugin Helper
 
-A meta-plugin for OpenCode that helps you create, debug, and manage OpenCode plugins. Install once, and get expert assistance with plugin development directly in your OpenCode sessions.
+A development tool for building OpenCode plugins. It helps you discover events, debug plugin behavior, and scaffold new plugins with working templates.
+
+## What This Plugin Does
+
+**This is a plugin for plugin developers.** It provides:
+
+1. **Debug Mode** - Logs all OpenCode events and tool executions in real-time
+2. **Event Discovery** - Lists all available events you can hook into
+3. **Template Scaffolding** - Provides working starter code for common plugin patterns
 
 ## Installation
 
 ```bash
+# Copy the .opencode folder to your project
+cp -r .opencode /path/to/your/project/
+```
+
+Or install via PRPM:
+```bash
 prpm install @prpm/opencode
 ```
 
-Or with npm:
+## How to Build a Plugin
+
+### Step 1: Enable Debug Mode
+
+Run OpenCode with debug mode to see all events firing:
 
 ```bash
-npm install -g @prpm/opencode
+cd /path/to/your/project
+PRPM_PLUGIN_DEBUG=true opencode
 ```
 
-## What's Included
-
-### Plugin: PRPM Plugin Helper
-
-A utility plugin that provides:
-- **Template scaffolding**: Generate boilerplate for common plugin patterns
-- **Event debugging**: Log and inspect plugin events in real-time
-- **Validation**: Check plugin structure and event handlers
-
-### Agent: Plugin Builder
-
-An AI agent specialized in creating OpenCode plugins:
-- Understands all 32+ OpenCode events
-- Knows best practices for plugin architecture
-- Can generate complete plugin implementations
-
-### Slash Command: /create-plugin
-
-Quick plugin scaffolding:
+You'll see output like:
 ```
-/create-plugin env-protection   # Security-focused plugin
-/create-plugin notify           # Notification plugin
-/create-plugin custom-tool      # Custom tool registration
+[PRPM Debug] session.created {"sessionID":"abc123"}...
+[PRPM Debug] Tool Before: Read {"filePath":"/src/index.ts"}
+[PRPM Debug] Tool After: Read - Read file
+[PRPM Debug] message.updated {"messageID":"msg1"}...
+[PRPM Debug] session.idle {}...
 ```
 
-## Quick Start
+### Step 2: Identify Events You Need
 
-After installation, you can:
+Use OpenCode normally while watching the logs. For example:
+- Want to run code when AI finishes? Look for `session.idle`
+- Want to intercept file reads? Look for `tool.execute.before` with tool `Read`
+- Want to know when files change? Look for `file.edited`
 
-1. **Use the agent**: Type `@plugin-builder` followed by your request
-   ```
-   @plugin-builder Create a plugin that blocks reading .env files
-   ```
+Or list all available events:
+```
+prpm:events
+```
 
-2. **Use the command**: Scaffold a new plugin
-   ```
-   /create-plugin my-plugin
-   ```
+### Step 3: Get a Template
 
-3. **Enable debugging**: The plugin helper logs events in debug mode
-   ```javascript
-   // In your opencode.json
-   {
-     "plugins": {
-       "prpm-plugin-helper": {
-         "debug": true
-       }
-     }
-   }
-   ```
+List available templates:
+```
+prpm:templates
+```
+
+View a specific template:
+```
+prpm:template:basic
+prpm:template:security
+prpm:template:notification
+prpm:template:custom-tool
+prpm:template:logging
+```
+
+### Step 4: Create Your Plugin
+
+Replace `.opencode/plugin/index.ts` with your own code based on the template:
+
+```typescript
+import type { Plugin } from "@opencode-ai/plugin";
+
+const MyPlugin: Plugin = async ({ $ }) => {
+  return {
+    event: async ({ event }) => {
+      if (event.type === 'session.idle') {
+        await $`osascript -e 'display notification "Done!" with title "OpenCode"'`;
+      }
+    },
+  };
+};
+
+export default MyPlugin;
+```
+
+### Step 5: Test It
+
+```bash
+opencode
+```
+
+## Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `prpm:events` | List all OpenCode events |
+| `prpm:templates` | List available plugin templates |
+| `prpm:template:<name>` | View a specific template |
+| `prpm:debug:on` | Enable debug logging at runtime |
+| `prpm:debug:off` | Disable debug logging |
+
+## Plugin Templates
+
+### basic
+Simple event handler starter - good for learning the plugin structure.
+
+### security
+Blocks access to sensitive files (.env, credentials.json, etc.) - useful for protecting secrets.
+
+### notification
+Sends OS notifications when sessions complete - works on macOS and Linux.
+
+### custom-tool
+Registers a custom tool the AI can use - extends OpenCode's capabilities.
+
+### logging
+Full event and tool logging - useful for debugging complex workflows.
 
 ## Event Reference
-
-OpenCode plugins can hook into these events:
 
 | Category | Events |
 |----------|--------|
 | **command** | `command.executed` |
 | **file** | `file.edited`, `file.watcher.updated` |
+| **installation** | `installation.updated` |
 | **lsp** | `lsp.client.diagnostics`, `lsp.updated` |
 | **message** | `message.part.removed`, `message.part.updated`, `message.removed`, `message.updated` |
 | **permission** | `permission.replied`, `permission.updated` |
@@ -82,70 +139,128 @@ OpenCode plugins can hook into these events:
 | **tool** | `tool.execute.before`, `tool.execute.after` |
 | **tui** | `tui.prompt.append`, `tui.command.execute`, `tui.toast.show` |
 
-## Claude Code Event Mapping
+## Important: Plugin Export Pattern
 
-When porting Claude Code hook behavior to OpenCode, use these event mappings:
+OpenCode plugins **must use a default export only**. Named exports will cause errors.
 
-| Claude Hook | OpenCode Event |
-|-------------|----------------|
+```typescript
+// CORRECT
+const MyPlugin: Plugin = async (context) => { ... };
+export default MyPlugin;
+
+// WRONG - will cause "fn3 is not a function" error
+export const MyPlugin: Plugin = async (context) => { ... };
+export default MyPlugin;
+export { OTHER_STUFF };
+```
+
+## Hook Signatures
+
+```typescript
+// Event handler
+event: async ({ event }) => {
+  // event.type: string
+  // event.data: unknown
+}
+
+// Before tool execution
+"tool.execute.before": async (input, output) => {
+  // input: { tool: string, sessionID: string, callID: string }
+  // output: { args: any }
+}
+
+// After tool execution
+"tool.execute.after": async (input, output) => {
+  // input: { tool: string, sessionID: string, callID: string }
+  // output: { title: string, output: string, metadata: any }
+}
+```
+
+## Claude Code Migration
+
+If you're porting hooks from Claude Code:
+
+| Claude Code Hook | OpenCode Event |
+|------------------|----------------|
 | `PreToolUse` | `tool.execute.before` |
 | `PostToolUse` | `tool.execute.after` |
 | `SessionEnd` | `session.idle` |
 
-## Plugin Templates
+---
 
-### Security Plugin
+<details>
+<summary><strong>For Agents</strong></summary>
 
-```javascript
-export const SecurityPlugin = async ({ project }) => {
+## Agent Instructions
+
+You are helping a user build an OpenCode plugin. OpenCode is a CLI coding assistant similar to Claude Code.
+
+### Key Facts
+
+1. **Plugins live in `.opencode/plugin/index.ts`**
+2. **Must use default export only** - named exports cause module loading errors
+3. **Hook signatures matter** - `tool.execute.after` takes `(input, output)` not `(result)`
+
+### Correct Plugin Structure
+
+```typescript
+import type { Plugin } from "@opencode-ai/plugin";
+
+const MyPlugin: Plugin = async (context) => {
+  const { project, directory, $, client } = context;
+
   return {
-    'tool.execute.before': async (input, output) => {
-      if (output.args.filePath?.includes('.env')) {
-        throw new Error('Blocked: Cannot read sensitive files');
-      }
-    }
-  };
-};
-```
+    // Event handler (optional)
+    event: async ({ event }) => { },
 
-### Notification Plugin
+    // Tool hooks (optional)
+    "tool.execute.before": async (input, output) => { },
+    "tool.execute.after": async (input, output) => { },
 
-```javascript
-export const NotifyPlugin = async ({ $ }) => {
-  return {
-    event: async ({ event }) => {
-      if (event.type === 'session.idle') {
-        await $`osascript -e 'display notification "Session complete" with title "OpenCode"'`;
-      }
-    }
-  };
-};
-```
-
-### Custom Tool Plugin
-
-```javascript
-import { tool } from "@opencode-ai/plugin";
-
-export const CustomToolPlugin = async (ctx) => {
-  return {
+    // Custom tools (optional)
     tool: {
-      myTool: tool({
-        description: "My custom tool",
-        args: { input: tool.schema.string() },
-        async execute(args) {
-          return `Processed: ${args.input}`;
-        }
-      })
+      myTool: tool({ ... })
     }
   };
 };
+
+export default MyPlugin;
 ```
 
-## Links
+### Common Mistakes to Avoid
 
-- [OpenCode Documentation](https://opencode.ai/docs)
-- [PRPM Registry](https://prpm.dev)
+1. **Multiple exports** - Only use `export default`, no named exports
+2. **Wrong hook signature** - `tool.execute.after` takes two params `(input, output)`, not one
+3. **Using `result.duration` or `result.success`** - These don't exist in the API
+4. **File not named `index.ts`** - OpenCode looks for `.opencode/plugin/index.ts` specifically
+
+### Available Context
+
+The plugin function receives:
+- `project` - Project info (name, path, etc.)
+- `directory` - Absolute path to project directory
+- `$` - Bun shell for running commands
+- `client` - OpenCode SDK client
+- `worktree` - Git worktree path
+
+### Testing Plugins
+
+```bash
+# With debug logging
+PRPM_PLUGIN_DEBUG=true opencode
+
+# Normal mode
+opencode
+```
+
+### When User Asks for Help
+
+1. First check if they have the correct export pattern
+2. Verify hook signatures match the API
+3. Suggest using debug mode to see what events fire
+4. Provide complete, working code (not snippets)
+
+</details>
 
 ## License
 

@@ -17,27 +17,30 @@
   "packages": [
     {
       "name": "plugin-helper",
-      "description": "Utility plugin for debugging and scaffolding OpenCode plugins",
+      "version": "1.0.0",
+      "description": "Utility plugin for debugging and scaffolding OpenCode plugins with event logging, template scaffolding, and developer commands",
       "format": "opencode",
       "subtype": "plugin",
-      "files": [".opencode/plugin/prpm-plugin-helper.ts"],
-      "tags": ["debug", "scaffold", "utility"]
+      "files": [".opencode/plugin/index.ts"],
+      "tags": ["debug", "scaffold", "utility", "developer-tools", "event-logging"]
     },
     {
       "name": "plugin-builder-agent",
-      "description": "AI agent specialized in creating OpenCode plugins",
+      "version": "1.0.0",
+      "description": "AI agent specialized in creating OpenCode plugins with expert knowledge of all 32+ events and best practices",
       "format": "opencode",
       "subtype": "agent",
       "files": [".opencode/agent/plugin-builder.md"],
-      "tags": ["agent", "plugin-development", "ai"]
+      "tags": ["agent", "plugin-development", "ai", "code-generation"]
     },
     {
       "name": "create-plugin-command",
-      "description": "Slash command to scaffold new OpenCode plugins",
+      "version": "1.0.0",
+      "description": "Slash command to scaffold new OpenCode plugins from templates (basic, security, notification, custom-tool, logging)",
       "format": "opencode",
       "subtype": "slash-command",
       "files": [".opencode/command/create-plugin.md"],
-      "tags": ["command", "scaffold", "template"]
+      "tags": ["command", "scaffold", "template", "generator"]
     }
   ]
 }
