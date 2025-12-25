@@ -10,7 +10,6 @@ A comprehensive development toolkit for building OpenCode plugins, agents, and s
 2. **Agent Builder Agent** - AI assistant for creating custom agents with configuration expertise
 3. **Debug Mode** - Logs all OpenCode events and tool executions in real-time
 4. **Template Scaffolding** - Working starter code for common patterns
-5. **Skills** - Best practices knowledge for prpm.json manifests
 
 ## Installation
 
@@ -29,7 +28,6 @@ Or manually copy the `.opencode` folder to your project.
 | `agent-builder-agent` | Agent | AI assistant for creating agents |
 | `create-plugin-command` | Command | Scaffold plugins from templates |
 | `create-agent-command` | Command | Scaffold agents from templates |
-| `prpm-json-skill` | Skill | Best practices for prpm.json manifests |
 
 ## Quick Start
 

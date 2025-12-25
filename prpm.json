@@ -10,7 +10,6 @@
     "opencode",
     "plugin",
     "agent",
-    "skill",
     "meta",
     "developer-tools",
     "scaffolding",
@@ -61,15 +60,6 @@
       "subtype": "slash-command",
       "files": [".opencode/command/create-agent.md"],
       "tags": ["command", "scaffold", "template", "generator", "agent"]
-    },
-    {
-      "name": "prpm-json-skill",
-      "version": "1.0.0",
-      "description": "Best practices for structuring prpm.json package manifests with required fields, tags, organization, multi-package management, and conversion hints",
-      "format": "opencode",
-      "subtype": "skill",
-      "files": [".opencode/skill/prpm-json/SKILL.md"],
-      "tags": ["prpm", "manifest", "packaging", "best-practices", "publishing"]
     }
   ]
 }
