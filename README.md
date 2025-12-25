@@ -1,127 +1,102 @@
-# PRPM OpenCode Plugin Helper
+# PRPM OpenCode Meta-Plugin
 
-A development tool for building OpenCode plugins. It helps you discover events, debug plugin behavior, and scaffold new plugins with working templates.
+A comprehensive development toolkit for building OpenCode plugins, agents, and skills. This meta-plugin provides AI-powered assistance, templates, and best practices for extending OpenCode.
 
 ## What This Plugin Does
 
-**This is a plugin for plugin developers.** It provides:
+**This is a plugin for OpenCode developers.** It provides:
 
-1. **Debug Mode** - Logs all OpenCode events and tool executions in real-time
-2. **Event Discovery** - Lists all available events you can hook into
-3. **Template Scaffolding** - Provides working starter code for common plugin patterns
+1. **Plugin Builder Agent** - AI assistant for creating plugins with knowledge of all 32+ events
+2. **Agent Builder Agent** - AI assistant for creating custom agents with configuration expertise
+3. **Debug Mode** - Logs all OpenCode events and tool executions in real-time
+4. **Template Scaffolding** - Working starter code for common patterns
+5. **Skills** - Best practices knowledge for prpm.json manifests
 
 ## Installation
 
 ```bash
-# Copy the .opencode folder to your project
-cp -r .opencode /path/to/your/project/
-```
-
-Or install via PRPM:
-```bash
 prpm install @prpm/opencode
 ```
 
-## How to Build a Plugin
+Or manually copy the `.opencode` folder to your project.
 
-### Step 1: Enable Debug Mode
+## Included Packages
 
-Run OpenCode with debug mode to see all events firing:
+| Package | Type | Description |
+|---------|------|-------------|
+| `plugin-helper` | Plugin | Debug utility with event logging and templates |
+| `plugin-builder-agent` | Agent | AI assistant for creating plugins |
+| `agent-builder-agent` | Agent | AI assistant for creating agents |
+| `create-plugin-command` | Command | Scaffold plugins from templates |
+| `create-agent-command` | Command | Scaffold agents from templates |
+| `prpm-json-skill` | Skill | Best practices for prpm.json manifests |
 
+## Quick Start
+
+### Creating a Plugin
+
+Use the slash command:
+```
+/create-plugin my-plugin security
+```
+
+Or invoke the agent directly:
+```
+@plugin-builder help me create a plugin that blocks .env file access
+```
+
+### Creating an Agent
+
+Use the slash command:
+```
+/create-agent my-agent review
+```
+
+Or invoke the agent directly:
+```
+@agent-builder create a code review agent that focuses on security
+```
+
+### Debug Mode
+
+Run OpenCode with debug logging to see all events:
 ```bash
-cd /path/to/your/project
 PRPM_PLUGIN_DEBUG=true opencode
 ```
 
-You'll see output like:
-```
-[PRPM Debug] session.created {"sessionID":"abc123"}...
-[PRPM Debug] Tool Before: Read {"filePath":"/src/index.ts"}
-[PRPM Debug] Tool After: Read - Read file
-[PRPM Debug] message.updated {"messageID":"msg1"}...
-[PRPM Debug] session.idle {}...
-```
+## Plugin Templates
 
-### Step 2: Identify Events You Need
+| Template | Description |
+|----------|-------------|
+| `basic` | Simple event handler starter |
+| `security` | Block sensitive file access |
+| `notification` | OS notifications on events |
+| `custom-tool` | Register custom AI tools |
+| `logging` | Full event/tool logging |
 
-Use OpenCode normally while watching the logs. For example:
-- Want to run code when AI finishes? Look for `session.idle`
-- Want to intercept file reads? Look for `tool.execute.before` with tool `Read`
-- Want to know when files change? Look for `file.edited`
+## Agent Templates
 
-Or list all available events:
-```
-prpm:events
-```
-
-### Step 3: Get a Template
-
-List available templates:
-```
-prpm:templates
-```
-
-View a specific template:
-```
-prpm:template:basic
-prpm:template:security
-prpm:template:notification
-prpm:template:custom-tool
-prpm:template:logging
-```
-
-### Step 4: Create Your Plugin
-
-Replace `.opencode/plugin/index.ts` with your own code based on the template:
-
-```typescript
-import type { Plugin } from "@opencode-ai/plugin";
-
-const MyPlugin: Plugin = async ({ $ }) => {
-  return {
-    event: async ({ event }) => {
-      if (event.type === 'session.idle') {
-        await $`osascript -e 'display notification "Done!" with title "OpenCode"'`;
-      }
-    },
-  };
-};
-
-export default MyPlugin;
-```
-
-### Step 5: Test It
-
-```bash
-opencode
-```
+| Template | Mode | Description |
+|----------|------|-------------|
+| `primary` | primary | Full-access development agent |
+| `plan` | primary | Analysis-only, no modifications |
+| `review` | subagent | Code review specialist |
+| `docs` | subagent | Documentation writer |
+| `security` | subagent | Security auditor |
+| `test` | subagent | Test generator |
+| `custom` | subagent | Minimal template |
 
 ## Available Commands
 
 | Command | Description |
 |---------|-------------|
+| `/create-plugin <name> [template]` | Scaffold a new plugin |
+| `/create-agent <name> [template]` | Scaffold a new agent |
 | `prpm:events` | List all OpenCode events |
-| `prpm:templates` | List available plugin templates |
-| `prpm:template:<name>` | View a specific template |
-| `prpm:debug:on` | Enable debug logging at runtime |
+| `prpm:templates` | List plugin templates |
+| `prpm:template:<name>` | View specific template |
+| `prpm:debug:on` | Enable debug logging |
 | `prpm:debug:off` | Disable debug logging |
-
-## Plugin Templates
-
-### basic
-Simple event handler starter - good for learning the plugin structure.
-
-### security
-Blocks access to sensitive files (.env, credentials.json, etc.) - useful for protecting secrets.
-
-### notification
-Sends OS notifications when sessions complete - works on macOS and Linux.
-
-### custom-tool
-Registers a custom tool the AI can use - extends OpenCode's capabilities.
-
-### logging
-Full event and tool logging - useful for debugging complex workflows.
 
 ## Event Reference
 
@@ -139,22 +114,95 @@ Full event and tool logging - useful for debugging complex workflows.
 | **tool** | `tool.execute.before`, `tool.execute.after` |
 | **tui** | `tui.prompt.append`, `tui.command.execute`, `tui.toast.show` |
 
-## Important: Plugin Export Pattern
+## File Locations
 
-OpenCode plugins **must use a default export only**. Named exports will cause errors.
+### Plugins
+- **Global**: `~/.config/opencode/plugin/`
+- **Project**: `.opencode/plugin/`
+
+### Agents
+- **Global**: `~/.config/opencode/agent/`
+- **Project**: `.opencode/agent/`
+
+### Skills
+- **Global**: `~/.opencode/skill/`
+- **Project**: `.opencode/skill/`
+
+## Plugin Structure
+
+```typescript
+import type { Plugin } from "@opencode-ai/plugin";
+
+const MyPlugin: Plugin = async ({ $, project, directory }) => {
+  return {
+    event: async ({ event }) => { },
+    "tool.execute.before": async (input, output) => { },
+    "tool.execute.after": async (input, output) => { },
+    tool: { /* custom tools */ }
+  };
+};
+
+export default MyPlugin;
+```
+
+## Agent Structure
+
+```markdown
+---
+description: Brief description of the agent
+mode: primary|subagent|all
+model: anthropic/claude-sonnet-4-20250514
+tools:
+  read: true
+  write: true
+  edit: true
+  bash: true
+permission:
+  edit: allow
+  bash: ask
+---
+
+# Agent Name
+
+System prompt instructions...
+```
+
+## Skill Structure
+
+```markdown
+---
+name: skill-name
+description: What the skill provides
+license: MIT
+---
+
+## When to Apply This Skill
+
+- Use when: [conditions]
+- Don't use for: [exclusions]
+
+## Knowledge Content
+
+[Detailed guidance and best practices]
+```
+
+## Important Notes
+
+### Plugin Export Pattern
+
+OpenCode plugins **must use a default export only**:
 
 ```typescript
 // CORRECT
 const MyPlugin: Plugin = async (context) => { ... };
 export default MyPlugin;
 
-// WRONG - will cause "fn3 is not a function" error
+// WRONG - causes errors
 export const MyPlugin: Plugin = async (context) => { ... };
 export default MyPlugin;
-export { OTHER_STUFF };
 ```
 
-## Hook Signatures
+### Hook Signatures
 
 ```typescript
 // Event handler
@@ -165,102 +213,24 @@ event: async ({ event }) => {
 
 // Before tool execution
 "tool.execute.before": async (input, output) => {
-  // input: { tool: string, sessionID: string, callID: string }
-  // output: { args: any }
+  // input: { tool, sessionID, callID }
+  // output: { args }
 }
 
 // After tool execution
 "tool.execute.after": async (input, output) => {
-  // input: { tool: string, sessionID: string, callID: string }
-  // output: { title: string, output: string, metadata: any }
+  // input: { tool, sessionID, callID }
+  // output: { title, output, metadata }
 }
 ```
 
 ## Claude Code Migration
-
-If you're porting hooks from Claude Code:
 
 | Claude Code Hook | OpenCode Event |
 |------------------|----------------|
 | `PreToolUse` | `tool.execute.before` |
 | `PostToolUse` | `tool.execute.after` |
 | `SessionEnd` | `session.idle` |
-
----
-
-<details>
-<summary><strong>For Agents</strong></summary>
-
-## Agent Instructions
-
-You are helping a user build an OpenCode plugin. OpenCode is a CLI coding assistant similar to Claude Code.
-
-### Key Facts
-
-1. **Plugins live in `.opencode/plugin/index.ts`**
-2. **Must use default export only** - named exports cause module loading errors
-3. **Hook signatures matter** - `tool.execute.after` takes `(input, output)` not `(result)`
-
-### Correct Plugin Structure
-
-```typescript
-import type { Plugin } from "@opencode-ai/plugin";
-
-const MyPlugin: Plugin = async (context) => {
-  const { project, directory, $, client } = context;
-
-  return {
-    // Event handler (optional)
-    event: async ({ event }) => { },
-
-    // Tool hooks (optional)
-    "tool.execute.before": async (input, output) => { },
-    "tool.execute.after": async (input, output) => { },
-
-    // Custom tools (optional)
-    tool: {
-      myTool: tool({ ... })
-    }
-  };
-};
-
-export default MyPlugin;
-```
-
-### Common Mistakes to Avoid
-
-1. **Multiple exports** - Only use `export default`, no named exports
-2. **Wrong hook signature** - `tool.execute.after` takes two params `(input, output)`, not one
-3. **Using `result.duration` or `result.success`** - These don't exist in the API
-4. **File not named `index.ts`** - OpenCode looks for `.opencode/plugin/index.ts` specifically
-
-### Available Context
-
-The plugin function receives:
-- `project` - Project info (name, path, etc.)
-- `directory` - Absolute path to project directory
-- `$` - Bun shell for running commands
-- `client` - OpenCode SDK client
-- `worktree` - Git worktree path
-
-### Testing Plugins
-
-```bash
-# With debug logging
-PRPM_PLUGIN_DEBUG=true opencode
-
-# Normal mode
-opencode
-```
-
-### When User Asks for Help
-
-1. First check if they have the correct export pattern
-2. Verify hook signatures match the API
-3. Suggest using debug mode to see what events fire
-4. Provide complete, working code (not snippets)
-
-</details>
 
 ## License
 
