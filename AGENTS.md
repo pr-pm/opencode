@@ -8,7 +8,7 @@ How to use skills (loaded into main context):
 - Use the <path> from the skill entry below
 - Invoke: Bash("cat <path>")
 - The skill content will load into your current context
-- Example: Bash("cat .openskills/backend-architect/SKILL.md")
+- Example: Bash("cat .opencode/skill/prpm-json/SKILL.md")
 
 Usage notes:
 - Skills share your context window
@@ -18,9 +18,9 @@ Usage notes:
 <available_skills>
 
 <skill activation="lazy">
-<name>prpm-json-best-practices-skill</name>
-<description>Best practices for structuring prpm.json package manifests with required fields, tags, organization, and multi-package management</description>
-<path>.openskills/prpm-json-best-practices-skill/SKILL.md</path>
+<name>prpm-json</name>
+<description>Best practices for structuring prpm.json package manifests with required fields, tags, organization, multi-package management, and conversion hints</description>
+<path>.opencode/skill/prpm-json/SKILL.md</path>
 </skill>
 
 </available_skills>
