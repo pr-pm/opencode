@@ -1,7 +1,7 @@
 {
   "name": "opencode",
   "version": "1.0.0",
-  "description": "Meta-plugin for OpenCode that helps create, debug, and manage OpenCode plugins with AI assistance",
+  "description": "Meta-plugin for OpenCode that helps create, debug, and manage OpenCode plugins, agents, and skills with AI assistance",
   "author": "prpm",
   "organization": "prpm",
   "license": "MIT",
@@ -9,6 +9,7 @@
   "tags": [
     "opencode",
     "plugin",
+    "agent",
     "meta",
     "developer-tools",
     "scaffolding",
@@ -34,13 +35,31 @@
       "tags": ["agent", "plugin-development", "ai", "code-generation"]
     },
     {
+      "name": "agent-builder-agent",
+      "version": "1.0.0",
+      "description": "AI agent specialized in creating OpenCode agents with expert knowledge of agent configuration, modes, tools, and best practices",
+      "format": "opencode",
+      "subtype": "agent",
+      "files": [".opencode/agent/agent-builder.md"],
+      "tags": ["agent", "agent-development", "ai", "meta", "scaffolding"]
+    },
+    {
       "name": "create-plugin-command",
       "version": "1.0.0",
       "description": "Slash command to scaffold new OpenCode plugins from templates (basic, security, notification, custom-tool, logging)",
       "format": "opencode",
       "subtype": "slash-command",
       "files": [".opencode/command/create-plugin.md"],
-      "tags": ["command", "scaffold", "template", "generator"]
+      "tags": ["command", "scaffold", "template", "generator", "plugin"]
+    },
+    {
+      "name": "create-agent-command",
+      "version": "1.0.0",
+      "description": "Slash command to scaffold new OpenCode agents from templates (primary, plan, review, docs, security, test)",
+      "format": "opencode",
+      "subtype": "slash-command",
+      "files": [".opencode/command/create-agent.md"],
+      "tags": ["command", "scaffold", "template", "generator", "agent"]
     }
   ]
 }

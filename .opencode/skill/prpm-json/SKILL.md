@@ -1,6 +1,7 @@
 ---
+name: prpm-json
 description: Best practices for structuring prpm.json package manifests with required fields, tags, organization, multi-package management, enhanced file format, eager/lazy activation, and conversion hints
-mode: all
+license: MIT
 ---
 
 ## When to Apply This Skill
@@ -67,32 +68,34 @@ mode: all
 | `agents.md` | Agents.md format |
 | `generic` | Generic/universal format |
 | `mcp` | Model Context Protocol |
+| `opencode` | OpenCode (agents, skills, plugins) |
 
 ### Subtype (Package Type)
 
 | Subtype | Description | Typical Formats |
 |---------|-------------|-----------------|
-| `agent` | Autonomous agents | `claude`, `agents.md` |
-| `skill` | Specialized capabilities | `claude` |
+| `agent` | Autonomous agents | `claude`, `opencode`, `agents.md` |
+| `skill` | Specialized capabilities | `claude`, `opencode` |
 | `rule` | IDE rules and guidelines | `cursor`, `windsurf` |
-| `slash-command` | Slash commands | `cursor`, `continue` |
+| `slash-command` | Slash commands | `cursor`, `continue`, `opencode` |
 | `prompt` | Prompt templates | `generic` |
 | `collection` | Package collections | Any |
 | `chatmode` | Chat modes | `kiro` |
 | `tool` | MCP tools | `mcp` |
+| `plugin` | Plugin modules | `opencode` |
 
 ## Eager vs Lazy Activation
 
 ### Setting Eager in prpm.json
 
-```
+```json
 {
   "name": "code-style-enforcer",
   "version": "1.0.0",
-  "format": "claude",
+  "format": "opencode",
   "subtype": "skill",
   "eager": true,
-  "files": [".claude/skills/code-style/SKILL.md"]
+  "files": [".opencode/skill/code-style/SKILL.md"]
 }
 ```
 
@@ -100,7 +103,7 @@ mode: all
 
 ### Tag Examples
 
-```
+```json
 {
   "tags": [
     "typescript",
@@ -116,20 +119,20 @@ mode: all
 
 ### Multi-Package Organization
 
-```
+```json
 {
   "packages": [
-    // Private > Claude > Agents
-    { "name": "internal-agent", "private": true, "format": "claude", "subtype": "agent" },
+    // Private > OpenCode > Agents
+    { "name": "internal-agent", "private": true, "format": "opencode", "subtype": "agent" },
 
-    // Private > Claude > Skills
-    { "name": "internal-skill", "private": true, "format": "claude", "subtype": "skill" },
+    // Private > OpenCode > Skills
+    { "name": "internal-skill", "private": true, "format": "opencode", "subtype": "skill" },
 
     // Private > Cursor > Rules
     { "name": "internal-rule", "private": true, "format": "cursor", "subtype": "rule" },
 
-    // Public > Claude > Skills
-    { "name": "public-skill", "format": "claude", "subtype": "skill" },
+    // Public > OpenCode > Skills
+    { "name": "public-skill", "format": "opencode", "subtype": "skill" },
 
     // Public > Cursor > Rules
     { "name": "public-rule", "format": "cursor", "subtype": "rule" }
@@ -141,7 +144,7 @@ mode: all
 
 ### Keep Versions in Sync
 
-```
+```json
 {
   "packages": [
     { "name": "pkg-one", "version": "1.2.0" },
@@ -155,17 +158,17 @@ mode: all
 
 ### Files Array
 
-```
+```json
 {
-  "format": "claude",
+  "format": "opencode",
   "subtype": "agent",
-  "files": [".claude/agents/my-agent.md"]
+  "files": [".opencode/agent/my-agent.md"]
 }
 ```
 
 ### Enhanced File Format
 
-```
+```json
 {
   "files": [
     {
@@ -190,7 +193,7 @@ mode: all
 
 ### File Verification
 
-```
+```bash
 # Check all files in prpm.json exist
 for file in $(cat prpm.json | jq -r '.packages[].files[]'); do
   if [ ! -f "$file" ]; then
@@ -203,18 +206,18 @@ done
 
 ### Check for Duplicate Names
 
-```
+```bash
 # Check for duplicate package names
 cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 ```
 
 ### Resolving Duplicates
 
-```
+```json
 {
   "packages": [
-    { "name": "typescript-safety", "format": "claude" },
-    { "name": "typescript-safety", "format": "cursor" }
+    { "name": "typescript-safety", "format": "opencode" },
+    { "name": "typescript-safety-cursor", "format": "cursor" }
   ]
 }
 ```
@@ -223,11 +226,11 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### **Purpose:** Help improve quality when converting packages to other formats. The `conversion` field provides format-specific hints for cross-format transformations.
 
-```
+```json
 {
   "name": "my-package",
   "version": "1.0.0",
-  "format": "claude",
+  "format": "opencode",
   "conversion": {
     "cursor": {
       "alwaysApply": false,
@@ -259,27 +262,27 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### Cursor Hints
 
-```
+```json
 {
   "conversion": {
     "cursor": {
-      "alwaysApply": boolean,      // Whether rule should always apply
-      "priority": "high|medium|low", // Rule priority level
-      "globs": ["**/*.ts"]         // File patterns to auto-attach
+      "alwaysApply": true,
+      "priority": "high",
+      "globs": ["**/*.ts"]
     }
   }
 }
 ```
 
-### Claude Hints
+### OpenCode Hints
 
-```
+```json
 {
   "conversion": {
-    "claude": {
-      "model": "sonnet|opus|haiku|inherit", // Preferred model
-      "tools": ["Read", "Write"],          // Allowed tools
-      "subagentType": "format-conversion"  // Subagent type if agent
+    "opencode": {
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "tools": ["read", "write", "edit", "bash"],
+      "mode": "subagent"
     }
   }
 }
@@ -287,15 +290,15 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### Kiro Hints
 
-```
+```json
 {
   "conversion": {
     "kiro": {
-      "inclusion": "always|fileMatch|manual", // When to include
-      "fileMatchPattern": "**/*.ts",         // Pattern for fileMatch mode
-      "domain": "typescript",                // Domain category
-      "tools": ["fs_read", "fs_write"],     // Available tools
-      "mcpServers": {                        // MCP server configs
+      "inclusion": "always",
+      "fileMatchPattern": "**/*.ts",
+      "domain": "typescript",
+      "tools": ["fs_read", "fs_write"],
+      "mcpServers": {
         "database": {
           "command": "mcp-server-postgres",
           "args": [],
@@ -309,12 +312,12 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### Copilot Hints
 
-```
+```json
 {
   "conversion": {
     "copilot": {
-      "applyTo": "src/**",                         // Path patterns
-      "excludeAgent": "code-review|coding-agent"  // Agent to exclude
+      "applyTo": "src/**",
+      "excludeAgent": "code-review"
     }
   }
 }
@@ -322,13 +325,13 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### Continue Hints
 
-```
+```json
 {
   "conversion": {
     "continue": {
-      "alwaysApply": boolean,           // Always apply rule
-      "globs": ["**/*.ts"],             // File patterns
-      "regex": ["import.*from"]         // Regex patterns
+      "alwaysApply": true,
+      "globs": ["**/*.ts"],
+      "regex": ["import.*from"]
     }
   }
 }
@@ -336,11 +339,11 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### Windsurf Hints
 
-```
+```json
 {
   "conversion": {
     "windsurf": {
-      "characterLimit": 12000  // Warn if exceeding limit
+      "characterLimit": 12000
     }
   }
 }
@@ -348,12 +351,12 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### Agents.md Hints
 
-```
+```json
 {
   "conversion": {
     "agentsMd": {
-      "project": "my-project",  // Project name
-      "scope": "backend"        // Scope/domain
+      "project": "my-project",
+      "scope": "backend"
     }
   }
 }
@@ -363,47 +366,47 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### Private Internal Packages
 
-```
+```json
 {
   "name": "internal-tool",
   "version": "1.0.0",
   "description": "Internal development tool",
   "private": true,
-  "format": "claude",
+  "format": "opencode",
   "subtype": "skill",
   "tags": ["prpm-internal", "development"],
-  "files": [".claude/skills/internal-tool/SKILL.md"]
+  "files": [".opencode/skill/internal-tool/SKILL.md"]
 }
 ```
 
 ### Meta Packages (Creating Other Packages)
 
-```
+```json
 {
   "name": "creating-skills",
   "version": "1.0.0",
-  "description": "Guide for creating effective Claude Code skills",
-  "format": "claude",
+  "description": "Guide for creating effective OpenCode skills",
+  "format": "opencode",
   "subtype": "skill",
-  "tags": ["meta", "claude-code", "skills", "documentation", "best-practices"],
-  "files": [".claude/skills/creating-skills/SKILL.md"]
+  "tags": ["meta", "opencode", "skills", "documentation", "best-practices"],
+  "files": [".opencode/skill/creating-skills/SKILL.md"]
 }
 ```
 
 ### Cross-Format Packages
 
-```
+```json
 {
   "packages": [
     {
       "name": "format-conversion-agent",
-      "format": "claude",
+      "format": "opencode",
       "subtype": "agent",
       "description": "Agent for converting between AI prompt formats",
-      "files": [".claude/agents/format-conversion.md"]
+      "files": [".opencode/agent/format-conversion.md"]
     },
     {
-      "name": "format-conversion",
+      "name": "format-conversion-rule",
       "format": "cursor",
       "subtype": "rule",
       "description": "Rule for converting between AI prompt formats",
@@ -415,7 +418,7 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### Collections in prpm.json
 
-```
+```json
 {
   "name": "my-prompts-repo",
   "author": "Your Name",
@@ -461,7 +464,7 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### When to Use Scripts
 
-```
+```json
 {
   "name": "my-packages",
   "license": "MIT",
@@ -472,12 +475,11 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
     {
       "name": "my-hook",
       "version": "1.0.0",
-      "format": "claude",
-      "subtype": "hook",
+      "format": "opencode",
+      "subtype": "plugin",
       "files": [
-        ".claude/hooks/my-hook/hook.ts",
-        ".claude/hooks/my-hook/hook.json",
-        ".claude/hooks/my-hook/dist/hook.js"
+        ".opencode/plugin/my-hook/index.ts",
+        ".opencode/plugin/my-hook/dist/index.js"
       ]
     }
   ]
@@ -486,30 +488,30 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### prepublishOnly Examples
 
-```
+```json
 {
   "scripts": {
-    "prepublishOnly": "cd .claude/hooks/my-hook && npm run build"
+    "prepublishOnly": "cd .opencode/plugin/my-plugin && npm run build"
   }
 }
 ```
 
 ### Common Patterns
 
-```
+```json
 {
   "scripts": {
-    "prepublishOnly": "cd packages/hooks && npm run build"
+    "prepublishOnly": "cd packages/plugins && npm run build"
   }
 }
 ```
 
 ### Debugging Script Failures
 
-```
+```bash
 # Test your prepublishOnly script manually
 cd /path/to/prpm.json/directory
-cd packages/hooks && npm run build
+cd packages/plugins && npm run build
 
 # If it works manually but fails in PRPM, check:
 # - Working directory assumptions
@@ -544,13 +546,13 @@ cd packages/hooks && npm run build
 
 ### Common Mistake: Duplicating Dependencies
 
-```
-// prpm.json
+```json
+// prpm.json - WRONG
 {
   "name": "my-project",
   "packages": [
     {
-      "name": "typescript-safety",  // ❌ This is an INSTALLED package
+      "name": "typescript-safety",  // This is an INSTALLED package
       "version": "1.0.0",
       "format": "cursor",
       "subtype": "rule",
@@ -562,7 +564,7 @@ cd packages/hooks && npm run build
 
 ### Workflow Example
 
-```
+```bash
 # Install a package (updates prpm.lock automatically)
 prpm install @prpm/typescript-safety
 
@@ -578,7 +580,7 @@ prpm install @prpm/typescript-safety
 
 ### 1. Validate Manifest
 
-```
+```bash
 # Validate JSON syntax
 cat prpm.json | jq . > /dev/null
 
@@ -591,14 +593,14 @@ cat prpm.json | jq -r '.packages[].name' | sort | uniq -d
 
 ### 3. Test Locally
 
-```
+```bash
 # Test package installation
 prpm install . --dry-run
 ```
 
 ### 4. Publish
 
-```
+```bash
 # Publish all packages
 prpm publish
 
@@ -610,16 +612,16 @@ prpm publish --package my-skill
 
 ### Missing Required Fields
 
-```
+```json
 {
-  "name": "my-skill",
+  "name": "my-skill"
   // Missing: version, description, format, subtype, files
 }
 ```
 
 ### Wrong Tag Format
 
-```
+```json
 {
   "tags": ["TypeScript", "Code_Quality", "bestPractices"]
   // Should be: ["typescript", "code-quality", "best-practices"]
@@ -628,10 +630,10 @@ prpm publish --package my-skill
 
 ### Duplicate Names
 
-```
+```json
 {
   "packages": [
-    { "name": "my-skill", "format": "claude" },
+    { "name": "my-skill", "format": "opencode" },
     { "name": "my-skill", "format": "cursor" }
     // Second should be: "my-skill-rule" or similar
   ]
@@ -640,32 +642,32 @@ prpm publish --package my-skill
 
 ### Missing Files
 
-```
+```json
 {
-  "files": [".claude/skills/my-skill/SKILL.md"]
-  // But .claude/skills/my-skill/SKILL.md doesn't exist in the repo
+  "files": [".opencode/skill/my-skill/SKILL.md"]
+  // But .opencode/skill/my-skill/SKILL.md doesn't exist in the repo
 }
 ```
 
 ### Absolute Paths
 
-```
+```json
 {
-  "files": ["/Users/me/project/.claude/skills/my-skill/SKILL.md"]
-  // Should be: ".claude/skills/my-skill/SKILL.md" (relative to project root)
+  "files": ["/Users/me/project/.opencode/skill/my-skill/SKILL.md"]
+  // Should be: ".opencode/skill/my-skill/SKILL.md" (relative to project root)
 }
 ```
 
 ### Missing Directory Prefix
 
-```
+```json
 {
-  "files": ["agents/my-agent.md"]
-  // Should be: ".claude/agents/my-agent.md" (include .claude/ prefix)
+  "files": ["skill/my-skill/SKILL.md"]
+  // Should be: ".opencode/skill/my-skill/SKILL.md" (include .opencode/ prefix)
 }
 ```
 
-You are a an expert at creating and maintaining `prpm.
+You are an expert at creating and maintaining `prpm.json` manifests.
 
 ## Remember
 
